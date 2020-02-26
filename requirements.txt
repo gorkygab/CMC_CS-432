@@ -1,0 +1,4 @@
+git+https://gitlab.com/FARMSIM/farms_pylog.git
+numpy
+matplotlib
+scipy

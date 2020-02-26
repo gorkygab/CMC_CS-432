@@ -1,0 +1,18 @@
+image: python:3.7-alpine
+
+pages:
+  script:
+  - echo "http://dl-8.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+  - apk --no-cache --update-cache add gcc gfortran python python-dev py-pip build-base wget freetype-dev libpng-dev openblas-dev
+  - ln -s /usr/include/locale.h /usr/include/xlocale.h
+  - pip install -U sphinx numpydoc matplotlib sphinx_rtd_theme
+  - apk --no-cache add make
+  - cd docs
+  - make html
+  - cd ..
+  - mv docs/build/html/ public/
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
