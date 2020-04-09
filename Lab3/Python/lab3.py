@@ -85,8 +85,8 @@ def exercise5():
     D = 1
 
     # Additional parameters
-    b = [0, 0]
-    w = [[1, 0], [0, 1]]
+    b = [-3.4, -2.5]
+    w = [[5.25, 1], [-1, 5.25]]
 
     # All system parameters packed in object for integration
     params = LeakyIntegratorParameters(tau, D, b, w)
