@@ -77,6 +77,15 @@ def system_init():
     N_params = NetworkParameters()  # Instantiate default network parameters
     N_params.D = 2.  # To change a network parameter
     # Similarly to change w -> N_params.w = (4x4) array
+    
+    '''Weight parameters for exercise 3a - taken from courses on neural networks (s.85)'''
+    N_params.w = np.array([[0  ,-5  ,-5  , 0  ], 
+                           [-5 , 0  , 0  ,-5  ],
+                           [5  ,-5  , 0  , 0  ],
+                           [-5 , 5  , 0  , 0  ]])
+    
+    
+    
 
     # Create a new neural network with above parameters
     neural_network = NeuralSystem(N_params)
@@ -130,9 +139,14 @@ def exercise3():
 
     # Create system
     sim = system_init()
+    
+    pylog.info(sim.sys)
+    
 
     # Add external inputs to neural network
-    sim.add_external_inputs_to_network(np.ones((len(sim.time), 4)))
+    '''Gain setup for the exercise 3b'''
+    externalGain = 0.5
+    sim.add_external_inputs_to_network(externalGain*np.ones((len(sim.time), 4)))
 
     # Integrate the system for the above initialized state and time
     sim.simulate()
@@ -141,33 +155,39 @@ def exercise3():
     # res is np.asarray [time, states]
     # states vector is in the same order as x0
     res = sim.results()
-
-    # Obtain the states of the system after integration
-    # res is np.asarray [time, states]
-    # states vector is in the same order as x0
-    res = sim.results()
+    
+    
 
     # In order to obtain internal states of the muscle
     # you can access the results attribute in the muscle class
     muscle_1_results = sim.sys.muscle_sys.muscle_1.results
     muscle_2_results = sim.sys.muscle_sys.muscle_2.results
 
+    '''Plots for exercise 3a - having a neuron oscillation to get a limit cycle behaviour '''
     # Plotting the results
     plt.figure('Pendulum')
-    plt.title('Pendulum Phase')
-    plt.plot(res[:, 1], res[:, 2])
-    plt.xlabel('Position [rad]')
-    plt.ylabel('Velocity [rad.s]')
+    plt.title('Neuron output')
+    plt.plot(sim.time, res[:, 7], label="Neuron 1")
+    plt.xlabel('Time [s]')
+    plt.ylabel('Neuron')
+    plt.plot(sim.time, res[:, 8], label="Neuron 2")
+    plt.xlabel('Time [s]')
+    plt.ylabel('Neuron')
     plt.grid()
+    plt.figure('P_Phase')
+    plt.title('Pendulum Phase')
+    plt.plot(res[:, 1], res[:, 2], label="Phase")
+    plt.xlabel('Time [s]')
+    plt.ylabel('')
 
     # To animate the model, use the SystemAnimation class
     # Pass the res(states) and systems you wish to animate
-    simulation = SystemAnimation(
-        res, sim.sys.pendulum_sys, sim.sys.muscle_sys, sim.sys.neural_sys)
+    #simulation = SystemAnimation(
+    #    res, sim.sys.pendulum_sys, sim.sys.muscle_sys, sim.sys.neural_sys)
 
     if DEFAULT["save_figures"] is False:
         # To start the animation
-        simulation.animate()
+        #simulation.animate()
         plt.show()
     else:
         figures = plt.get_figlabels()
