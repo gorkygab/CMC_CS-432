@@ -9,6 +9,7 @@ from math import sqrt
 import farms_pylog as pylog
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy import signal
 
 from cmcpack import DEFAULT
 from cmcpack.plot import save_figure
@@ -85,8 +86,8 @@ def system_init():
     sys.add_muscle_system(muscles)  # Add the muscle model to the system
 
     ########## INITIALIZATION ##########
-    t_max = 2  # Maximum simulation time
-    time = np.arange(0., t_max, 0.001)  # Time vector
+    t_max = 10  # Maximum simulation time
+    time = np.arange(0., t_max, 0.005)  # Time vector
     ##### Model Initial Conditions #####
     x0_P = np.asarray([np.pi/2, 0.0])  # Pendulum initial condition
     # Muscle Model initial condition
@@ -112,15 +113,88 @@ def exercise2():
     -------
         None
     """
-
+    
     sim = system_init()
-
+    
+    '''
+    # Calculation of the two muscle lengths and moment arm.
+    a1 = sim.sys.muscle_sys.muscle_1_pos[0][1]
+    a2 = sim.sys.muscle_sys.muscle_1_pos[1][1]
+       
+    theta = np.arange(np.pi/4, np.pi*3/4, np.pi/24)
+    mLength = np.zeros(len(theta))
+    mMomentArm = np.zeros(len(theta))
+    
+    
+    for i in range(len(theta)):
+        mLength[i] = np.sqrt(a1*a1 + a2*a2 + a1*a2*np.cos(theta[i]))
+        mMomentArm[i] = a1*a2*np.sin(theta[i])/mLength[i]
+    
+    plt.figure('Length and Moment Arm m1')
+    plt.title('Muscle 1 - Extensor')
+    plt.plot(theta, mLength, label = "Muscle length")
+    plt.plot(theta, mMomentArm, label = "Moment arm")
+    plt.xlabel('Theta [rad]')
+    plt.ylabel('Moment arm & length [m]')
+    plt.legend()
+    plt.grid()
+    
+    
+    a1 = sim.sys.muscle_sys.muscle_2_pos[0][1]
+    a2 = sim.sys.muscle_sys.muscle_2_pos[1][1]
+    
+    for i in range(len(theta)):
+        mLength[i] = np.sqrt(a1*a1 + a2*a2 + a1*a2*np.cos(theta[i]))
+        mMomentArm[i] = a1*a2*np.sin(theta[i])/mLength[i]
+    
+    plt.figure('Length and Moment Arm m2')
+    plt.title('Muscle 2 - Flexor')
+    plt.plot(theta, mLength, label = "Muscle length")
+    plt.plot(theta, mMomentArm, label = "Moment arm")
+    plt.xlabel('Theta [rad]')
+    plt.ylabel('Moment arm & length [m]')
+    plt.legend()
+    plt.grid()
+    '''
+    
     # Add muscle activations to the simulation
     # Here you can define your muscle activation vectors
     # that are time dependent
 
+    '''
+    # Flat waveform
     act1 = np.ones((len(sim.time), 1)) * 0.05
     act2 = np.ones((len(sim.time), 1)) * 0.05
+    '''
+    freq = 10;
+    '''
+    # Sine waveform
+    act1 = np.reshape(np.sin(freq*sim.time)+1, (len(sim.time), 1))
+    act2 = np.reshape(np.sin(freq*sim.time)+1, (len(sim.time), 1))
+    '''
+    
+    
+    '''
+    # Square waveform
+    act1 = np.reshape(signal.square(freq*sim.time, 0.5), (len(sim.time), 1))
+    act2 = np.reshape(signal.square(freq*sim.time, 0.5), (len(sim.time), 1))
+    '''
+    
+    # Sawtooth waveform
+    act1 = np.reshape(signal.sawtooth(freq*sim.time, 0.5), (len(sim.time), 1))
+    act2 = np.reshape(signal.sawtooth(freq*sim.time, 0.5), (len(sim.time), 1))
+    
+    pylog.info(len(act1))
+    pylog.info(len(sim.time))
+    
+    
+    plt.figure('Sine test')
+    plt.title('Sine test')
+    plt.plot(sim.time, act1)
+    plt.xlabel('Time')
+    plt.ylabel('Sine')
+    plt.grid()
+    
 
     activations = np.hstack((act1, act2))
 
@@ -173,7 +247,6 @@ def exercise2():
             plt.figure(fig)
             save_figure(fig)
             plt.close(fig)
-
 
 if __name__ == '__main__':
     from cmcpack import parse_args

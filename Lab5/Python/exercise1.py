@@ -40,6 +40,11 @@ def exercise1a():
     pylog.info(parameters.showParameters())
     pylog.info("Use the parameters object to change the muscle parameters")
 
+    # Change the fiber length property l_opt
+   
+    lopt = 0.35
+    parameters.l_opt = lopt
+    
     # Create muscle object
     muscle = Muscle(parameters)
 
@@ -55,11 +60,11 @@ def exercise1a():
     # >>> sys.muscle.l_opt # To get the muscle optimal length
 
     # Evalute for a single muscle stretch
-    muscle_stretch = 0.2
+    muscle_stretch = 0.8
 
     # Evalute for a single muscle stimulation
-    muscle_stimulation = 1.
-
+    muscle_stimulation = [0.2, 0.4, 0.6, 0.8, 1]
+    stim = 0.7
     # Set the initial condition
     x0 = [0.0, sys.muscle.l_opt]
     # x0[0] --> muscle stimulation intial value
@@ -72,20 +77,40 @@ def exercise1a():
 
     time = np.arange(t_start, t_stop, time_step)
 
+
+    #for stim in muscle_stimulation:
     # Run the integration
     result = sys.integrate(x0=x0,
                            time=time,
                            time_step=time_step,
-                           stimulation=muscle_stimulation,
+                           stimulation=stim,
                            muscle_length=muscle_stretch)
 
+
+    
+    #pylog.info(result)
     # Plotting
-    plt.figure('Isometric muscle experiment')
-    plt.plot(result.time, result.l_ce)
+    plt.figure('Isometric muscle experiment 1b')
+    
+    '''
+    plt.plot(result.l_ce, result.active_force)
     plt.title('Isometric muscle experiment')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Muscle contracticle length [m]')
+    plt.xlabel('Contractile element length [m]')
+    plt.ylabel('Active force [N]')
+    plt.plot(result.l_ce, result.passive_force)
+    plt.title('Isometric muscle experiment')
+    plt.xlabel('Contractile element length [m]')
+    plt.ylabel('Passive force [N]')
+    '''
+    plt.plot(result.l_ce, result.passive_force + result.active_force)
+    plt.title('Isometric muscle experiment')
+    plt.xlabel('Contractile element length [m]')
+    plt.ylabel('Total force [N]')
+    plt.xlim(0.1,0.5)
+    plt.ylim(50, 1800)
     plt.grid()
+        
+    
 
 
 def exercise1d():
@@ -101,8 +126,8 @@ def exercise1d():
     print(muscle_parameters.showParameters())
 
     mass_parameters = MassParameters()
+    mass_parameters.mass = 0
     print(mass_parameters.showParameters())
-
     # Create muscle object
     muscle = Muscle(muscle_parameters)
 
@@ -124,10 +149,9 @@ def exercise1d():
     # >>> sys.muscle.l_opt # To get the muscle optimal length
 
     # Evalute for a single load
-    load = 250/9.81
+    load = np.arange(50/9.81, 3000/9.81, 5)
 
     # Evalute for a single muscle stimulation
-    muscle_stimulation = 1.0
 
     # Set the initial condition
     x0 = [0.0, sys.muscle.l_opt,
@@ -146,26 +170,43 @@ def exercise1d():
     time = np.arange(t_start, t_stop, time_step)
 
     # Run the integration
-    result = sys.integrate(x0=x0,
-                           time=time,
-                           time_step=time_step,
-                           time_stabilize=time_stabilize,
-                           stimulation=muscle_stimulation,
-                           load=load
-                           )
-
-    # Plotting
+    
     plt.figure('Isotonic muscle experiment')
-    plt.plot(result.time,
-             result.v_ce)
-    plt.title('Isotonic muscle experiment')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Muscle contracticle velocity [lopts/s]')
+    muscle_stimulation = [0.2, 0.4, 0.6, 0.8, 1]
+    for j in range(len(muscle_stimulation)):
+        vel = np.zeros(len(load))
+        
+        for i in range(len(load)):
+            result = sys.integrate(x0=x0,
+                                time=time,
+                                time_step=time_step,
+                                time_stabilize=time_stabilize,
+                                stimulation=muscle_stimulation[j],
+                                load=load[i]
+                                )
+            if(result.l_mtu[len(result.l_mtu)-1] < (sys.muscle.l_opt + sys.muscle.l_slack)):
+                vel[i] = min(result.v_ce)
+            else:
+                vel[i] = max(result.v_ce)              
+        
+        #pylog.info(result)
+        # Plotting
+        plt.plot(vel, load*9.81, label='Stimulation {}'.format(muscle_stimulation[j]))
+        plt.title('Isotonic muscle experiment')
+        plt.xlabel('Muscle velocity [m/s]')
+        plt.ylabel('Tension [N]')
+    
+    
+    
+    
+    ax = plt.gca()
+    ax.invert_xaxis()
+    ax.legend()
     plt.grid()
 
 
 def exercise1():
-    exercise1a()
+    #exercise1a()
     exercise1d()
 
     if DEFAULT["save_figures"] is False:
