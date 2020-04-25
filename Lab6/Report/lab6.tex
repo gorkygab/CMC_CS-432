@@ -1,230 +1,53 @@
 \documentclass{cmc}
+\usepackage{amsmath}
 
 \begin{document}
 
+
 \pagestyle{fancy}
 \lhead{\textit{\textbf{Computational Motor Control, Spring 2020} \\
-    Python exercise, Lab 6, GRADED}} \rhead{Student \\ Names}
+    Python exercise, Lab 6, GRADED}} \rhead{Jon Märki, Jérôme Savary, Gabriel Tornare}
 
-\section*{Student names: \ldots (please update)}
-\textit{Instructions: Update this file (or recreate a similar one,
-  e.g.\ in Word) to prepare your answers to the questions. Feel free
-  to add text, equations and figures as needed. Hand-written notes,
-  e.g.\ for the development of equations, can also be included e.g.\
-  as pictures (from your cell phone or from a scanner).
-  \textbf{\corr{This lab is graded.}} and must be submitted before the
-  \textbf{\corr{Deadline : 22-04-2020 23:59}}.  \\ Please submit both
-  the source file (*.doc/*.tex) and a pdf of your document, as well as
-  all the used and updated Python functions in a single zipped file
-  called \corr{lab6\_name1\_name2\_name3.zip} where name\# are the
-  team member’s last names.  \corr{Please submit only one report per
-    team!}}
-\\
-
-\textit{The file \fileref{lab\#.py} is provided to run all exercises
-  in Python.
-  % Each \fileref{exercise\#.py} can be run to run an exercise
-  % individually.
-  The list of exercises and their dependencies are shown in
-  Figure~\ref{fig:files}.  When a file is run, message logs will be
-  printed to indicate information such as what is currently being run
-  and and what is left to be implemented. All warning messages are
-  only present to guide you in the implementation, and can be deleted
-  whenever the corresponding code has been implemented correctly.}
-
-
-% \textit{In this exercise, you will explore the different modeling
-% techniques that can be used to control a single joint and
-% segment. We initially start by exploring a single joint controlled
-% by a pair of antagonist spring like muscles and then extend the
-% model by adding dampers to it. These only represent the passive
-% dynamics observed in a real musculoskeletal system. To make the
-% behavior more realistic we then study more complex hill muscle model
-% in detail. }
-
-\begin{figure}[ht]
-  \centering \includegraphics[width=0.5\textwidth]{figures/files}
-  \caption{\label{fig:files} Exercise files dependencies. In this lab,
-    you will be modifying \fileref{exercise2.py}, \fileref{exercise3.py}
-    and optionally \fileref{pendulum\_system.py}}
-\end{figure}
-
-\subsection*{Files to complete the exercises}
-\label{sec:intro}
-
-\begin{itemize}
-\item \fileref{lab6.py} : Main file
-\item \fileref{exercise2.py} : Main file to complete exercise 2
-\item \fileref{exercise3.py} : Main file to complete exercise 3
-\item \fileref{system\_parameters.py} : Parameter class for Pendulum,
-  Muscles and Neural Network (Create an instance and change properties
-  using the instance. You do not have to modify the file)
-\item \fileref{muscle.py} : Muscle class (You do not have to modify
-  the file)
-\item \fileref{system.py} : System class to combine different models %
-  like Pendulum, Muscles, Neural Network (You do not have to modify
-  the file)
-\item \fileref{pendulum\_system.py} : Contains the description of
-  pendulum equation and Pendulum class. You can use the file to define
-  perturbations in the pendulum.
-\item \fileref{muscle\_system.py} : Class to combine two muscles (You
-  do not have to modify the file)
-\item \fileref{neural\_system.py} : Class to describe the neural
-  network (You do not have to modify the file)
-\item \fileref{system\_simulation.py} : Class to initialize all the
-  systems, validate and to perform integration (You do not have to
-  modify the file)
-\item \fileref{system\_animation.py} : Class to produce animation of
-  the systems after integration (You do not have to modify the file)
-\end{itemize}
-
-\textbf{NOTE : } '\textit{You do not have to modify}' does not mean
-you should not, it means it is not necessary to complete the
-exercises. But, \corr{you are expected to look into each of these
-  files and understand how everything works}. You are free to explore
-and change any file if you feel so.
+\section*{Student names: Jon Märki, Jérôme Savary, Gabriel Tornare}
 
 \section*{Exercise 2 : Pendulum model with Muscles}
-\label{sec:question-1}
 
-\begin{figure}[H]
-  \centering \includegraphics[scale=2.0]{figures/pendulum_muscles.pdf}
-  \caption{Pendulum with Antagonist Hill Muscles}
-  \label{fig:p_muscles}
-\end{figure}
-
-The system is comprised of a physical pendulum described by equation
-\ref{eq:pendulum} and a pair of antagonist muscles \textbf{M1} and
-\textbf{M2}. Muscle \textbf{M1} extends the pendulum ($\theta$
-increases) and Muscle \textbf{M2} flexes the muscle ($\theta$
-decreases).
-
-Consider the system only for the pendulum range $\theta$ = $[0, \pi]$
-
-\begin{equation}
-  \label{eq:pendulum}
-  I\ddot{\theta} = -0.5 \cdot m \cdot g \cdot L \cdot sin(\theta)
-\end{equation}
-
-Where,
-
-\begin{itemize}
-\item $I$ - Pendulum inertia about the pendulum pivot joint
-  [$kg \cdot m^2$]
-\item $\theta$ - Pendulum angular position with the vertical [$rad$]
-\item $\ddot{\theta}$ - Pendulum angular acceleration
-  [$rad \cdot s^{-2}$]
-\item $m$ - Pendulum mass [$kg$]
-\item $g$ - System gravity [$m \cdot s^{-2}$]
-\item $L$ - Length of the pendulum [$m$]
-\end{itemize}
-
-Each muscle is modelled using the Hill-type equations that you are now
-familiar with.  Muscles have two attachment points, one at the origin
-and the other at the insertion point.  The origin points are denoted
-by $O_{1,2}$ and the insertion points by $I_{1,2}$. The two points of
-attachment dictate how the length of the muscle changes with respect
-to the change in position of the pendulum.
-
-The active and passive forces produced by the muscle are transmitted
-to the pendulum via the tendons. In order to apply this force on to
-the pendulum, we need to compute the moment based on the attachments
-of the muscle.
-
-Using the laws of sines and cosines, we can derive the length of
-muscle and moment arm as below. The reference to the paper can be
-found here
-\href{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5323435}{\corr{Reference}},
-
-\begin{eqnarray}
-  \label{eq:2}
-  L_2 = \sqrt[2]{a_{1}^2 + a_{2}^2 + 2 \cdot a_1 \cdot a_2 \cdot \cos(\theta)} \\
-  h_2 = \frac{a_1 \cdot a_2 \cdot \sin(\theta)}{L_2}
-\end{eqnarray}
-
-Where,
-
-\begin{itemize}
-\item $L_2$ : Length of muscle 2
-\item $a_1$ : Distance between muscle 2 origin and pendulum origin
-  ($|O_2C|$)
-\item $a_2$ : Distance between muscle 2 insertion and pendulum origin
-  ($|I_2C|$)
-\item $h_2$ : Moment arm of the muscle
-\end{itemize}
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[scale=2.5]{figures/pendulum_moment_arm.pdf}
-  \caption[force_length]{Computation of muscle length and moment arm}
-  \label{fig:pendulum_muscles_force_length}
-\end{figure}
-
-Equation \ref{eq:2} can be extended to the Muscle 2 in similar
-way. Thus, the final torque applied by the muscle on to the pendulum
-is given by,
-
-\begin{equation}
-  \label{eq:3}
-  \tau = F \cdot h
-\end{equation}
-
-\textbf{NOTE : $\tau$ can also be computed as the cross product of the
-  force vector and radial vector. This method is used in the code to
-  compute the torques and there by bypassing the moment arm
-  computation.}
-
-Where,
-
-\begin{itemize}
-\item $\tau$ : Torque [$N \cdot m$]
-\item $F$ : Muscle Tendon Force [$N$]
-\item $h$ : Muscle Moment Arm [$m$]
-
-\end{itemize}
-
-In this exercise, the following states of the system are integrated
-over time,
-
-\begin{equation}
-  \label{eq:1}
-  X = \begin{bmatrix}
-    \theta & \dot{\theta} & A_1 & l_{CE1} & A_2 & l_{CE2}
-  \end{bmatrix}
-\end{equation}
-
-Where,
-
-\begin{itemize}
-\item $\theta$ : Angular position of the pendulum [rad]
-\item $\dot{\theta}$ : Angular velocity of the pendulum [rad/s]
-\item $A_1$ : Activation of muscle 1 with a range between [0.05, 1].
-  0.05 corresponds to base line stimulation and 1 corresponds to
-  maximal stimulation.
-\item $l_{CE1}$ : Length of contractile element of muscle 1
-\item $A_2$ : Activation of muscle 2 with a range between [0.05, 1].
-  0.05 corresponds to base line stimulation and 1 corresponds to
-  maximal stimulation.
-\item $l_{CE2}$ : Length of contractile element of muscle 2
-\end{itemize}
-
-To complete this exercise you will make use of the following files,
-\fileref{exercise2.py}, \fileref{system\_parameters.py},
-\fileref{muscle.py}, \fileref{system.py},
-\fileref{pendulum\_system.py}, \fileref{muscle\_system.py},
-\fileref{system\_simulation.py} %
-
-\label{sec:questions}
 
 \subsection*{2a. For the given default set of attachment points,
   compute and plot the muscle length and moment arm as a function of
-  $\theta$ between $[pi/4, 3pi/4]$ using equations in
-  \corr{eqn:\ref{eq:2}} and discuss how it influences the pendulum
-  resting position and the torques muscles can apply at different
+  $\theta$ between $[pi/4, 3pi/4]$ using previous equations and discuss how it influences the pendulum resting position and the torques muscles can apply at different 
   joint angles. You are free to implement this code by yourself as it
   does not have any other dependencies.}
 \label{sec:2a}
 
+%===========================================================
+%BEGIN USER CODE
+%===========================================================
+
+The result of the measures based on the given equations can be observed in figure \ref{fig:2a}. By changing the angle of the arm, we also change the lengths of both muscles, therefore the force they can apply, and finally therefore the torque, which also varies with the moment arm. The resting position == the resting angle is the one at which both muscles, given their respective lengths and stimulations, apply the same opposed torques = no resulting torque.
+
+%TODO : discuss the influence on the resting position and the torque
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=\textwidth]{figures/2a_Length_and_Moment_Arm_m1.png} }
+    \caption{Result of experiment 2a on muscle 1.}
+    \label{fig:2a_M1}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=\textwidth]{figures/2a_Length_and_Moment_Arm_m2.png} }
+    \caption{Result of experiment on muscle 2.}
+    \label{fig:2a_m2}
+  \end{subfigure}
+  \caption{Result of experiment 2a.}
+  \label{fig:2a}
+\end{figure}
+%===========================================================
+%END USER CODE
+%===========================================================
 
 \subsection*{2b. Using simple activation wave forms (example : sine or
   square waves) applied to muscles (use
@@ -234,7 +57,91 @@ To complete this exercise you will make use of the following files,
   Explain and show the activations wave forms you used. Use
   \fileref{pendulum\_system.py::\-PendulumSystem::\-pendulum\_system}
   function to perturb the model.}
-\label{sec:2c}
+\label{sec:2b}
+
+%===========================================================
+%BEGIN USER CODE
+%===========================================================
+
+For this part, we inputed the three different signals at two different frequencies (1 and 10 [Hz]). Our 1[Hz] signals can be visualised on Figure \ref{fig:2b_signals}.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_Sine_test.png} }
+    \caption{1[Hz] Sine-shaped stimulation input signal.}
+    \label{fig:2b_sine_signal}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_Square_test.png} }
+    \caption{1[Hz] Square-shaped stimulation input signal.}
+    \label{fig:2b_sine_phase}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_Sawtooth_test.png} }
+    \caption{1[Hz] Sawtooth-shaped stimulation input signal.}
+    \label{fig:2b_square_signal}
+  \end{subfigure}
+
+  \caption{1[Hz] signals for exercise 2b.}
+  \label{fig:2b_signals}
+\end{figure}
+
+
+The result of the measures based on the given equations can be observed in figure \ref{fig:2b} on page \pageref{fig:2b}. We can observe from these measures that the pendulum reaches a limit circle which is about in the same order of magnitude for the three signals, and the measurements from the sineè and sawtooth-shaped signals share more similarities than the ones from the square-shaped one (logically, since they are more similar).
+Each stimulation signal has two phase pendulum phases measured: one when the stimulation signals for the flexor and extendor muscles are in phase (left), the other when they are in counterphase (right)
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sine_phased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] phased square-shaped stimulation signal.}
+    \label{fig:2b_sine_signal}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sine_counterphased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] counterphased sine-shaped stimulation signal.}
+    \label{fig:2b_sine_phase}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_square_phased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] phased square-shaped stimulation signal.}
+    \label{fig:2b_square_signal}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_square_counterphased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] counterphased square-shaped stimulation signal.}
+    \label{fig:2b_square_signal}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sawtooth_phased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] phased square-shaped stimulation signal.}
+    \label{fig:2b_square_signal}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sawtooth_counterphased.png} }
+    \caption{Phase diagram of the pendulum with the 1[Hz] counterphased sawtooth-shaped stimulation signal.}
+    \label{fig:2b_square_signal}
+  \end{subfigure}
+  \caption{Measurements of experiment 2b.}
+  \label{fig:2b}
+\end{figure}
+
+%===========================================================
+%END USER CODE
+%===========================================================
 
 
 \subsection*{2c. Explore the relationship between stimulation
@@ -242,55 +149,94 @@ To complete this exercise you will make use of the following files,
   inferences for a low and high frequency condition.  }
 \label{sec:2c}
 
+%===========================================================
+%BEGIN USER CODE
+%===========================================================
+
+When we increase the frequency to 10[Hz], the limit circle tends to be much smaller and less clearly defined (less stable). We can suppose that the muscle is reached a state of "crispation" and has the time constant (inertia) of the system is too high to be able to follow precisely the stimulation variation (see Figure \ref{fig:2c_signals}). We also observe that the system takes more cycles to reach it.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sine_10HZ_counterphased.png} }
+    \caption{Position-velocity behaviour with the Sine-shaped stimulation signal.}
+    \label{fig:2c_sine_signal}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_square_10HZ_counterphased.png} }
+    \caption{Position-velocity behaviour with the square-shaped stimulation signal.}
+    \label{fig:2c_sine_phase}
+  \end{subfigure}
+  
+  \begin{subfigure}[b]{0.48\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/2b_sawtooth_10HZ_counterphased.png} }
+    \caption{Position-velocity behaviour with the sawtooth-shaped stimulation signal.}
+    \label{fig:2c_square_signal}
+  \end{subfigure}
+
+  \caption{Position-velocity behaviour of the system for each 10[Hz] signal. NOTE: for those three simulations, the flexor and extensor stimulation signals are counterphased.}
+  \label{fig:2c_signals}
+\end{figure}
+
+%===========================================================
+%END USER CODE
+%===========================================================
+
 \newpage
 \section*{Exercise 3 : Neural network driven pendulum model with
   muscles}
 \label{sec:neur-netw-driv}
 
-In this exercise, the goal is to drive the above system (Fig
-\ref{fig:p_muscles}) with a symmetric four-neuron oscillator
-network. The network is based on Brown's half-center model with
-fatigue mechanism. Here we use the leaky-integrate and fire neurons
-for modelling the network. Figure \ref{fig:p_muscles_neurons} shows
-the network structure and the complete system.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[scale=1.5]{figures/pendulum_muscles_neurons.pdf}
-  \caption{Pendulum with Antagonist Hill Muscles Driven Half Center
-    Neural Network.}
-  \label{fig:p_muscles_neurons}
-\end{figure}
-
-Since each leaky-integrate and fire neuron comprises of one first
-order differential equation, the states to be integrated now increases
-by four(one state per neuron). The states are,
-
-
-\begin{equation}
-  \label{eq:1}
-  X = \begin{bmatrix}
-    \theta & \dot{\theta} & A_1 & l_{CE1} & A_2 & l_{CE2} & m_1 & m_2 & m_3 & m_4
-  \end{bmatrix}
-\end{equation}
-
-Where,
-
-\begin{itemize}
-\item $m_1$ : Membrane potential of neuron 1
-\item $m_2$ : Membrane potential of neuron 2
-\item $m_3$ : Membrane potential of neuron 3
-\item $m_4$ : Membrane potential of neuron 4
-\end{itemize}
-
-To complete this exercise, additionally you will have to use
-\fileref{neural\_system.py} and \fileref{exercise3.py}
 
 \subsection*{3a. Find a set of weights and time constants for the
   neural network that produces oscillations to drive the pendulum into
   a limit cycle behavior. Plot the output of the network and the phase
   plot of the pendulum}
 \label{sec:4a}
+
+%===========================================================
+%BEGIN USER CODE
+%===========================================================
+
+The selected parameters were taken from Lecture 4 on Neural Networks, slide 85:
+\begin{center}
+$
+Weights =
+\begin{pmatrix}
+0 & -5 & -5 & 0\\
+-5 & 0 & 0 & -5\\
+5 & -5 & 0 & 0\\
+-5 & 5 & 0 & 0
+\end{pmatrix}
+$
+\end{center}
+
+\begin{figure}[H]
+ \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3a_neuron_output.png} }
+    \caption{Neuron output of the network without any external drive}
+    \label{fig:3a_neuron_output}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3a_pendulum_Phase.png} }
+    \caption{Pendulum phase with our given parameters and no external drive.}
+    \label{fig:3b_pendulum_phase}
+  \end{subfigure}
+  \caption{Measurements on the neural network with our weight matrix}
+  \label{fig:3a}
+\end{figure}
+
+%===========================================================
+%END USER CODE
+%===========================================================
+
+
 
 \subsection*{3b. As seen in the course, apply an external drive to the
   individual neurons and explain how the system is affected. Show
@@ -301,69 +247,50 @@ To complete this exercise, additionally you will have to use
 \label{sec:4c}
 
 
+%===========================================================
+%BEGIN USER CODE
+%===========================================================
+\begin{figure}[H]
+ \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3b_1_neuron_output.png} }
+    \caption{Neuron output of the network with an external drive gain of 1.}
+    \label{fig:3b_1_neuron_output}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3b_1_pendulum_phase.png} }
+    \caption{Pendulum phase with an external drive gain of 1.}
+    \label{fig:3b_pendulum_phase}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3b_6_neuron_output.png} }
+    \caption{Neuron output of the network with an external drive gain of 6.}
+    \label{fig:3b_1_neuron_output}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.45\textwidth}
+    { \centering
+      \includegraphics[width=0.99\textwidth]{figures/3b_6_pendulum_phase.png} }
+    \caption{Pendulum phase with an external drive gain of 6.}
+    \label{fig:3b_pendulum_phase}
+  \end{subfigure}
+  \caption{Measurements on the neural network with two different external drives.}
+  \label{fig:3a}
+\end{figure}
+
+%===========================================================
+%END USER CODE
+%===========================================================
+
+
 \subsection*{3c. [Open Question] What are the limitations of the half
   center model in producing alternating patterns to control the
   pendulum? What would be the effect of sensory feedback on this
   model? (No plots required)}
 \label{sec:4d}
 
-
-\newpage
-\section*{Appendix I : Hill muscle model equations}
-\label{sec:hill-model-equations}
-\begin{table}[H]
-  \centering
-  \begin{tabular}{c|c|p{7cm}}
-    \textbf{Name}& \textbf{Equation}& \textbf{Comment} \\ \hline
-    $F_{mtu}$ & $F_{m} = F_{se} = F_{ce}+F_{pe}-F_{be}$ & Force of generated by the MTU \\[0.7cm]
-    $F_{se}$ & $
-               F_{se}=
-               \begin{cases}
-                 F_{max} \cdot (\frac{\varepsilon}{\varepsilon_{ref}})^2,& \text{if } \varepsilon > 0 \\
-                 0, & \text{otherwise}
-               \end{cases}
-                      $  & Force generated by the tendon \\[0.7cm]
-    $F_{pe}$ & $
-               F_{pe}=
-               \begin{cases}
-                 F_{max} \cdot (\frac{l_{ce}-l_{opt}}{l_{opt}w})^2\cdot f_{v}(v_{ce}),& \text{if } l_{ce} > l_{opt} \\
-                 0, & \text{otherwise}
-               \end{cases}
-                      $
-                                    & Force of the parallel element preventing muscle overextension \\[0.7cm]
-    $F_{be}$ & $
-               F_{be}=
-               \begin{cases}
-                 F_{max} \cdot (\frac{l_{opt}-w-l_{ce}}{l_{opt}w/2})^2,& \text{if } l_{ce} \leq l_{opt}\cdot(1 - w) \\
-                 0, & \text{otherwise}
-               \end{cases}
-                      $
-                                    & Force of the parallel element preventing muscle to collapse
-    \\[0.7cm]
-
-    $F_{ce}$ & $F_{ce} = A \cdot F_{max} \cdot f_l(l_{ce}) \cdot f_v(v_{ce})$ & Force generated by the muscle (ce) \\ [0.7cm]
-
-    $A$ & $\frac{dA}{dt} = \tau \cdot (S(t) - A)$ & Muscle activation is equal to the integral of the input signal I(t). Biologically, the input signal can be viewed as the normalized frequency of neuronal spike that reaches the muscle (i.e. restricted to the [0.05; 1] interval). The activation is thus also limited to this interval. \\[0.7cm]
-
-    $f_l({l_{ce}})$ & $f_l({l_{ce}}) = exp(c|\frac{l_{ce}-l_{opt}}{l_{opt}w}|^3)$ & Muscle force - muscle length relationship function (function of the
-                                                                                    muscle length (lce) \\[0.7cm]
-
-    $f_{v}(v_{ce})$ & $f_{v}(v_{ce}) = \begin{cases}
-      \frac{v_{max}-v_{ce}}{v_{max}+k \cdot v_{max}},& \text{if } v_{ce} < 0 \\
-      N + (N - 1)\frac{v_{max}-v_{ce}}{7.56 \cdot K \cdot v_{ce} - v_{max}}, & \text{otherwise}
-    \end{cases}$ & Muscle force - muscle velocity relationship function (function of the muscle velocity (vce ) \\[0.7cm]
-
-    $v_{ce}(f_{v})$ &  $v_{ce}(f_{v}) = \begin{cases}
-      v_{max} \cdot \frac{1 -f_v }{1 + f_v \cdot K},& \text{if } f_{v} < 1.0 \\
-      v_{max} \cdot \frac{f_v - 1}{7.56 \cdot K \cdot (f_v - N) + 1 - N}, & \text{otherwise}
-    \end{cases}$ & Inverse of the muscle force - velocity
-                   function. This function is used for the resolution of the muscles equations. \\[0.7cm]
-    $l_{ce}$ & $\int v_{ce} \cdot dt$ & Muscle (ce) length \\[0.7cm]
-    $l_{se}$ & $l_{se} = l_{mtu} - l_{ce}$ & Tendon (se) length \\[0.7cm]
-    $l_{mtu}$ & $l_{mtu} = l_{opt} + l_{slack} + \delta l_{mtu}$ & MTU
-                                                                   length
-  \end{tabular}
-  \label{tab:hill-eqn}
-\end{table}
+As we've observed in the experiment, a too high external drive can stop the generation of alternating patterns. Therefore, a sensory feedback high and long enough could "short-circuit" the neural system and stop the actuation (e.g. a high load on the motors) and render the robot motionless. It is also sensible to the starting position of the arm, and also the actuation symmetry is forced (we cannot stimulate each muscle independently).
 
 \end{document}

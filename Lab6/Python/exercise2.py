@@ -5,6 +5,7 @@ This file implements the pendulum system with two muscles attached
 """
 
 from math import sqrt
+from math import pi
 
 import farms_pylog as pylog
 import numpy as np
@@ -86,7 +87,8 @@ def system_init():
     sys.add_muscle_system(muscles)  # Add the muscle model to the system
 
     ########## INITIALIZATION ##########
-    t_max = 10  # Maximum simulation time
+    t_max = 10 #previously 10
+    # Maximum simulation time
     time = np.arange(0., t_max, 0.005)  # Time vector
     ##### Model Initial Conditions #####
     x0_P = np.asarray([np.pi/2, 0.0])  # Pendulum initial condition
@@ -113,9 +115,12 @@ def exercise2():
     -------
         None
     """
-    
+
     sim = system_init()
     
+    #=========================================================================
+    #EXERCISE 2A
+    #=========================================================================
     '''
     # Calculation of the two muscle lengths and moment arm.
     a1 = sim.sys.muscle_sys.muscle_1_pos[0][1]
@@ -155,45 +160,67 @@ def exercise2():
     plt.ylabel('Moment arm & length [m]')
     plt.legend()
     plt.grid()
-    '''
     
+    
+    #=========================================================================
+    #EXERCISE 2B
+    #=========================================================================
+    '''
     # Add muscle activations to the simulation
     # Here you can define your muscle activation vectors
     # that are time dependent
 
-    '''
+    
     # Flat waveform
     act1 = np.ones((len(sim.time), 1)) * 0.05
     act2 = np.ones((len(sim.time), 1)) * 0.05
-    '''
+    
+    #choose frequency here
     freq = 10;
-    '''
+    
+    freq = freq*2*pi;
+
+    
     # Sine waveform
-    act1 = np.reshape(np.sin(freq*sim.time)+1, (len(sim.time), 1))
-    act2 = np.reshape(np.sin(freq*sim.time)+1, (len(sim.time), 1))
     '''
-    
-    
+    act1 = np.reshape((np.sin(freq*sim.time)+1)/2, (len(sim.time), 1))
+    act2 = np.reshape((np.sin(freq*sim.time)+1)/2, (len(sim.time), 1))
+    plt.figure('Sine test')
+    plt.title('Sine test')
+    plt.plot(sim.time, act1)
+    plt.plot(sim.time, act2)
+    plt.xlabel('Time')
+    plt.ylabel('Waveform')
+    plt.grid()
+    '''
     '''
     # Square waveform
-    act1 = np.reshape(signal.square(freq*sim.time, 0.5), (len(sim.time), 1))
-    act2 = np.reshape(signal.square(freq*sim.time, 0.5), (len(sim.time), 1))
+    act1 = np.reshape((signal.square(freq*sim.time, 0.5)+1)/2, (len(sim.time), 1))
+    act2 = np.reshape((signal.square(freq*sim.time*-1, 0.5)+1)/2, (len(sim.time), 1))
+    plt.figure('Square test')
+    plt.title('Square test')
+    plt.plot(sim.time, act1)
+    plt.plot(sim.time, act2)
+    plt.xlabel('Time')
+    plt.ylabel('Waveform')
+    plt.grid()
     '''
-    
+    '''
     # Sawtooth waveform
-    act1 = np.reshape(signal.sawtooth(freq*sim.time, 0.5), (len(sim.time), 1))
-    act2 = np.reshape(signal.sawtooth(freq*sim.time, 0.5), (len(sim.time), 1))
+    act1 = np.reshape((signal.sawtooth(freq*sim.time, 0.5)+1)/2, (len(sim.time), 1))
+    act2 = np.reshape(((signal.sawtooth(freq*sim.time, 0.5)+1)/-2)+1, (len(sim.time), 1))
+    plt.figure('Sawtooth test')
+    plt.title('Sawtooth test')
+    plt.plot(sim.time, act1)
+    plt.plot(sim.time, act2)
+    plt.xlabel('Time')
+    plt.ylabel('Waveform')
+    plt.grid()
+    '''
     
     pylog.info(len(act1))
     pylog.info(len(sim.time))
     
-    
-    plt.figure('Sine test')
-    plt.title('Sine test')
-    plt.plot(sim.time, act1)
-    plt.xlabel('Time')
-    plt.ylabel('Sine')
-    plt.grid()
     
 
     activations = np.hstack((act1, act2))
@@ -247,6 +274,8 @@ def exercise2():
             plt.figure(fig)
             save_figure(fig)
             plt.close(fig)
+            
+
 
 if __name__ == '__main__':
     from cmcpack import parse_args
