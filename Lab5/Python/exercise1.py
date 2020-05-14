@@ -192,6 +192,8 @@ def exercise1d():
         #pylog.info(result)
         # Plotting
         plt.plot(vel, load*9.81, label='Stimulation {}'.format(muscle_stimulation[j]))
+        plt.axvline(0, 0, 3000, color = 'red')
+
         plt.title('Isotonic muscle experiment')
         plt.xlabel('Muscle velocity [m/s]')
         plt.ylabel('Tension [N]')
@@ -201,6 +203,8 @@ def exercise1d():
     
     ax = plt.gca()
     ax.invert_xaxis()
+    ax.axvspan(0.5, 0.0, alpha=0.2, color='red')
+    ax.axvspan(0.0, -1.18, alpha=0.2, color='blue')
     ax.legend()
     plt.grid()
 
@@ -224,5 +228,6 @@ def exercise1():
 if __name__ == '__main__':
     from cmcpack import parse_args
     parse_args()
-    exercise1()
+    #exercise1()
+    exercise1d()
 

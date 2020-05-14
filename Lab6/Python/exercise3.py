@@ -145,7 +145,7 @@ def exercise3():
 
     # Add external inputs to neural network
     '''Gain setup for the exercise 3b'''
-    externalGain = 0.5
+    externalGain = 6
     sim.add_external_inputs_to_network(externalGain*np.ones((len(sim.time), 4)))
 
     # Integrate the system for the above initialized state and time
