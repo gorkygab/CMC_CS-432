@@ -32,13 +32,43 @@ def network_ode(_time, state, robot_parameters):
     rates = robot_parameters.rates
     freqs = robot_parameters.freqs
     
+    
+    #COMMENTED CODE BELOW IS USED FOR LINEAR DRIVE FOR 8a_3
+    '''
+    drive = _time*6/30
+        
+    if drive >= 1 and drive <= 5:
+        nominal_amp[0:20] = (0.25+(drive*0.05))* np.ones(20)
+    else:
+        nominal_amp[0:20] = np.zeros(20)
+        
+    
+    if drive >= 1 and drive <= 3:
+        nominal_amp[20:24] = (0.2+(drive*0.1))* np.ones(4)
+    else:
+        nominal_amp[20:24] = np.zeros(4)
+
+        
+    if drive >= 1 and drive <= 5:
+        freqs[0:20] = (0.2+(drive*0.3)) * np.ones(20)
+    else:
+        freqs[0:20] = np.zeros(20)
+        
+    
+    if drive >= 1 and drive <= 3:
+        freqs[20:24] = drive*0.2 * np.ones(4)
+    else:
+        freqs[20:24] = np.zeros(4)'''
+            
+    
+    
     phasesdot = np.zeros(24)
     amplitudesdot = np.zeros(24)
     # Implement equation here
     for i in range(24):
-        vect = robot_parameters.coupling_weights[:,i] * amplitudes * np.sin(phases - np.ones(24)*phases[i] - robot_parameters.phase_bias[:,i])
-        phasesdot[i] = 2*np.pi*robot_parameters.freqs[i] + np.sum(vect)
-        amplitudesdot[i] = robot_parameters.rates[i]*(robot_parameters.nominal_amplitudes[i] - amplitudes[i])
+        sumElements = robot_parameters.coupling_weights[:,i] * amplitudes * np.sin(phases - np.ones(24)*phases[i] - robot_parameters.phase_bias[:,i])
+        phasesdot[i] = 2*np.pi*freqs[i] + np.sum(sumElements)
+        amplitudesdot[i] = robot_parameters.rates[i]*(nominal_amp[i] - amplitudes[i])
     
     return np.concatenate([phasesdot, amplitudesdot])
 
@@ -59,17 +89,17 @@ def motor_output(phases, amplitudes, iteration=None):
         Motor outputs for joint in the system.
     """
     # Implement equation here
-    q = np.zeros(10)
+    body = np.zeros(10)
     for i in range(10):
-        q[i] = amplitudes[i]*(1+np.cos(phases[i])) - amplitudes[i+10]*(1+np.cos(phases[i+10]))
+        body[i] = amplitudes[i]*(1+np.cos(phases[i])) - amplitudes[i+10]*(1+np.cos(phases[i+10]))
     
     # Implement equation here        
-    l = np.zeros(4)
+    limbs = np.zeros(4)
     
     for i in range(4):
-        l[i] = amplitudes[i+20]*(1+np.cos(phases[i+20]))
+        limbs[i] = amplitudes[i+20]*(1+np.cos(phases[i+20]))
     
-    return np.concatenate([q, l])
+    return np.concatenate([body, limbs])
 
 
 class RobotState(np.ndarray):

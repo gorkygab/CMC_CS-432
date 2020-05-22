@@ -88,7 +88,7 @@ def run_network(duration, update=False, drive=0):
     # Implement plots of network results
     plt.figure('Output of joint angles of the spine')
     for i in range(10):
-        plt.plot(times, (outputs_log[:,9-i]+ 2*i*np.ones(1500))/drive)
+        plt.plot(times, (outputs_log[:,9-i]+ 2*i*np.ones(int(duration/timestep)))/drive)
     plt.title('Joint angles')
     plt.xlabel('Time [s]')
     plt.ylabel('Angle')
@@ -96,7 +96,7 @@ def run_network(duration, update=False, drive=0):
     
     plt.figure('Output of joint angles of the limbs')
     for i in range(4):
-        plt.plot(times, (outputs_log[:,10+i]+ 2*i*np.ones(1500))/drive)
+        plt.plot(times, (outputs_log[:,10+i]+ 2*i*np.ones(int(duration/timestep)))/drive)
     plt.title('Limb angles')
     plt.xlabel('Time [s]')
     plt.ylabel('Angle')
@@ -104,6 +104,7 @@ def run_network(duration, update=False, drive=0):
     
     plt.figure('Drive')
     plt.plot(times, drive*np.ones(len(times)))
+    '''plt.plot(times, times* 6/duration)''' #CHANGE HERE TO PLOT DRIVE INCREASING FUNCTION FOR 8a_3
     plt.title('Drive plot for CPG')
     plt.xlabel('Time [s]')
     plt.ylabel('drive')
@@ -112,7 +113,7 @@ def run_network(duration, update=False, drive=0):
 def main(plot):
     """Main"""
 
-    run_network(duration=15, drive=2)
+    run_network(duration=30, drive=4)
 
     # Show plots
     if plot:

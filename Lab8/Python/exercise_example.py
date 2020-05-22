@@ -13,17 +13,17 @@ def exercise_example(timestep):
     # Parameters
     parameter_set = [
         SimulationParameters(
-            duration=10,  # Simulation duration in [s]
+            duration=20,  # Simulation duration in [s]
             timestep=timestep,  # Simulation timestep in [s]
             spawn_position=[0, 0, 0.1],  # Robot position in [m]
             spawn_orientation=[0, 0, 0],  # Orientation in Euler angles [rad]
-            drive=drive,  # An example of parameter part of the grid search
+            drive=4,  # An example of parameter part of the grid search
             amplitudes=[1, 2, 3],  # Just an example
             phase_lag=0,  # or np.zeros(n_joints) for example
             turn=0,  # Another example
             # ...
         )
-        for drive in np.linspace(1, 2, 2)
+        #for drive in np.linspace(1, 2, 2)
         # for amplitudes in ...
         # for ...
     ]
@@ -34,8 +34,8 @@ def exercise_example(timestep):
         sim, data = simulation(
             sim_parameters=sim_parameters,  # Simulation parameters, see above
             arena='water',  # Can also be 'ground' or 'amphibious'
-            # fast=True,  # For fast mode (not real-time)
-            # headless=True,  # For headless mode (No GUI, could be faster)
+            fast=True,  # For fast mode (not real-time)
+            #headless=True,  # For headless mode (No GUI, could be faster)
             # record=True,  # Record video, see below for saving
             # video_distance=1.5,  # Set distance of camera to robot
             # video_yaw=0,  # Set camera yaw for recording

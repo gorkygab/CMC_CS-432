@@ -12,6 +12,9 @@ class SimulationParameters:
         self.duration = 30
         self.phase_lag = None
         self.amplitude_gradient = None
+        self.amplitudes = 1
+        self.rhead = 1
+        self.rtail = 1
         # Feel free to add more parameters (ex: MLR drive)
         # self.drive_mlr = ...
         # ...

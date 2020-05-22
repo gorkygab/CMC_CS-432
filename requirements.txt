@@ -4,4 +4,10 @@ matplotlib
 scipy
 PyBullet
 tqdm
+PyBullet
+tqdm
 cython
+PyYAML
+deepdish
+git+https://gitlab.com/FARMSIM/farms_pylog.git
+git+https://gitlab.com/FARMSIM/farms_bullet.git

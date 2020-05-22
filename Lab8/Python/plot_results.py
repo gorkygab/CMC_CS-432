@@ -77,33 +77,88 @@ def plot_2d(results, labels, n_data=300, log=False, cmap=None):
 def main(plot=True):
     """Main"""
     # Load data
-    data = AnimatData.from_file('logs/example/simulation_0.h5', 2*14)
-    with open('logs/example/simulation_0.pickle', 'rb') as param_file:
-        parameters = pickle.load(param_file)
-    times = data.times
-    timestep = times[1] - times[0]  # Or parameters.timestep
-    amplitudes = parameters.amplitudes
-    phase_lag = parameters.phase_lag
-    osc_phases = data.state.phases_all()
-    osc_amplitudes = data.state.amplitudes_all()
-    links_positions = data.sensors.gps.urdf_positions()
-    head_positions = links_positions[:, 0, :]
-    tail_positions = links_positions[:, 10, :]
-    joints_positions = data.sensors.proprioception.positions_all()
-    joints_velocities = data.sensors.proprioception.velocities_all()
-    joints_torques = data.sensors.proprioception.motor_torques()
+    dataquantity = 100
+    
+    speed = np.zeros(dataquantity)
+    energy = np.zeros(dataquantity)
+    amplitudes = np.zeros(dataquantity)
+    phase_lag = np.zeros(dataquantity)
+    rhead = np.zeros(dataquantity)
+    rtail = np.zeros(dataquantity)
+    
+    for i in range(dataquantity):  # Inner loop should be phase and outer loop should be amplitude
+        data = AnimatData.from_file('logs/8c/simulation_{}.h5'.format(i), 2*14)
+        with open('logs/8c/simulation_{}.pickle'.format(i), 'rb') as param_file:
+            parameters = pickle.load(param_file)
+        times = data.times
+        timestep = times[1] - times[0]  # Or parameters.timestep
+        amplitudes[i] = parameters.amplitudes
+        phase_lag[i] = parameters.phase_lag
+        rhead[i] = parameters.rhead
+        rtail[i] = parameters.rtail
+        osc_phases = data.state.phases_all()
+        osc_amplitudes = data.state.amplitudes_all()
+        links_positions = np.asarray(data.sensors.gps.urdf_positions())
+        head_positions = links_positions[:, 0, :]
+        tail_positions = links_positions[:, 10, :]
+        joints_positions = data.sensors.proprioception.positions_all()
+        joints_velocities = data.sensors.proprioception.velocities_all()
+        joints_torques = data.sensors.proprioception.motor_torques()
+        speed[i] = head_positions[-1,0]/times[-1]
+        energy[i] = np.sum(np.multiply(joints_velocities, joints_torques))
     # Notes:
     # For the gps arrays: positions[iteration, link_id, xyz]
     # For the positions arrays: positions[iteration, xyz]
     # For the joints arrays: positions[iteration, joint]
-
-    # Plot data
+        
+        
+        
+        
+        
+        
+        
+    '''
+    #FOR EXERCICE 8B 
+    result = np.zeros((dataquantity,3))
+    result[:,0] = amplitudes
+    result[:,1] = phase_lag
+    
+    plt.figure("Speed")
+    result[:,2] = speed
+    plot_2d(result,["Amplitude", "Phase lag", "Speed"]) 
+    
+    plt.figure("Energy")
+    result[:,2] = energy
+    plot_2d(result,["Amplitude", "Phase lag", "Energy"])
+      '''
+    
+       
+    #FOR EXERCISE 8C
+    result = np.zeros((dataquantity,3))
+    result[:,0] = rhead
+    result[:,1] = rtail
+    
+    plt.figure("Speed")
+    result[:,2] = speed
+    plot_2d(result,["Head amplitude", "Tail amplitude", "Speed"]) 
+    
+    plt.figure("Energy")
+    result[:,2] = energy
+    plot_2d(result,["Head amplitude", "Tail amplitude", "Energy"])
+    
+    '''
+    # Plt data
     plt.figure("Positions")
     plot_positions(times, head_positions)
     plt.figure("Trajectory")
     plot_trajectory(head_positions)
+    
+    plt.figure("Joint positions")
+    plot_positions(times, joints_positions)
+    '''
+    
 
-        # Show plots
+    # Show plots
     if plot:
         plt.show()
     else:

@@ -91,16 +91,22 @@ class RobotParameters(dict):
 
     def set_phase_bias(self, parameters):
         """Set phase bias"""
+        if parameters.phase_lag is None:
+            phase_lag = 2*np.pi/10
+        else:
+            phase_lag = parameters.phase_lag/parameters.n_body_joints
+                
+        
         for i in range(10):
             if i != 0:
-                self.phase_bias[i,i-1] = -2*np.pi/10
-            self.phase_bias[i,i+1] = 2*np.pi/10
+                self.phase_bias[i,i-1] = -phase_lag
+            self.phase_bias[i,i+1] = phase_lag
             self.phase_bias[i,i+10] = np.pi 
             
         for i in range(10):
-            self.phase_bias[10+i,i+9] = -2*np.pi/10
+            self.phase_bias[10+i,i+9] = -phase_lag
             if i != 9:
-                self.phase_bias[10+i,i+11] = 2*np.pi/10
+                self.phase_bias[10+i,i+11] = phase_lag
             self.phase_bias[10+i,i] = np.pi 
             
         
@@ -119,22 +125,29 @@ class RobotParameters(dict):
 
     def set_amplitudes_rate(self, parameters):
         """Set amplitude rates"""
-        self.rates[0:20] = 5 * np.ones(20)
-        self.rates[20:24] = 15 * np.ones(4)
+        self.rates[0:20] = 2 * np.ones(20)
+        self.rates[20:24] = 2 * np.ones(4)
 
     def set_nominal_amplitudes(self, parameters):
         """Set nominal amplitudes"""
         
+        gradvect = np.linspace(parameters.rhead, parameters.rtail, self.n_body_joints)
+        gradvect = np.reshape([gradvect, gradvect], (1,20))
+    
         drive = parameters.drive
+        if parameters.amplitudes is None:
+            amplitude = 1
+        else:
+            amplitude = parameters.amplitudes
         
         if drive >= 1 and drive <= 5:
-            self.nominal_amplitudes[0:20] = (0.25+(drive*0.05))* np.ones(20)
+            self.nominal_amplitudes[0:20] = (drive*0.05)* np.ones(20) * amplitude
         else:
             self.nominal_amplitudes[0:20] = np.zeros(20)
             
-        
+        self.nominal_amplitudes[0:20] = np.multiply(self.nominal_amplitudes[0:20],gradvect)
         if drive >= 1 and drive <= 3:
-            self.nominal_amplitudes[20:24] = (0.2+(drive*0.1))* np.ones(4)
+            self.nominal_amplitudes[20:24] = (0.1+(drive*0.1))* np.ones(4) * amplitude
         else:
             self.nominal_amplitudes[20:24] = np.zeros(4)
 
