@@ -89,6 +89,7 @@ def motor_output(phases, amplitudes, iteration=None):
         Motor outputs for joint in the system.
     """
     # Implement equation here
+    
     body = np.zeros(10)
     for i in range(10):
         body[i] = amplitudes[i]*(1+np.cos(phases[i])) - amplitudes[i+10]*(1+np.cos(phases[i+10]))

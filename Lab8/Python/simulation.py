@@ -84,18 +84,57 @@ def simulation(
     # Run simulation
     pylog.info('Running simulation')
     # sim.run(show_progress=show_progress)
-    # contacts = data.sensors.contacts
-    # gps = data.sensors.gps
+    contacts = data.sensors.contacts
+    gps = data.sensors.gps
+    count = 0
     for iteration in sim.iterator(show_progress=True):
-        # pylog.info(np.asarray(
-        #     contacts.reaction(
-        #         iteration=iteration,  # Current iteration
-        #         sensor_i=0,  # 0...3, one for each leg
-        #     )
-        # ))
+        
+        currcontactleftfront = np.asarray(
+             contacts.reaction(
+             iteration=iteration,  # Current iteration
+             sensor_i=0,  # 0...3, one for each leg
+             ))
+        currcontactrightfront = np.asarray(
+             contacts.reaction(
+             iteration=iteration,  # Current iteration
+             sensor_i=2,  # 0...3, one for each leg
+             ))
+        currcontactleftback = np.asarray(
+             contacts.reaction(
+             iteration=iteration,  # Current iteration
+             sensor_i=1,  # 0...3, one for each leg
+             ))
+        currcontactrightback = np.asarray(
+             contacts.reaction(
+             iteration=iteration,  # Current iteration
+             sensor_i=3,  # 0...3, one for each leg
+             ))
+        if(currcontactleftfront[2] > 1e-1 and currcontactrightfront[2] > 1e-1 
+           and currcontactleftback[2] > 1e-1 and currcontactrightback[2] > 1e-1):
+             pylog.info("Changed to walking : count = {}".format(count))
+             count = 0
+             sim_parameters.drive = 3
+        elif(currcontactleftfront[2] < 1e-1 and currcontactrightfront[2] < 1e-1 
+             and currcontactleftback[2] < 1e-1 and currcontactrightback[2] < 1e-1 and count > 10):
+             sim_parameters.drive = 4
+             count = 0
+             pylog.info("Changed to swimming")
+        #pylog.info("left : {}, right : {}".format(currcontactleft, currcontactright)) 
+        count +=1
+        
+        
+        network.robot_parameters.update(sim_parameters)
+        
+        '''
+        pylog.info(np.asarray(
+             contacts.reaction(
+             iteration=iteration,  # Current iteration
+             sensor_i=0,  # 0...3, one for each leg
+             )
+        ))'''
         # Position of head: gps.urdf_position(iteration=iteration, link_i=0)
         # You can make changes to sim_parameters and then update with:
-        # network.robot_parameters.update(sim_parameters)
+        #sim_parameters.turn = 1
         assert iteration >= 0
 
     # Terminate simulation

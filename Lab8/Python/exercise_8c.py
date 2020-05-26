@@ -15,15 +15,15 @@ def exercise_8c(timestep):
             spawn_position=[0, 0, 0.1],  # Robot position in [m]
             spawn_orientation=[0, 0, 0],  # Orientation in Euler angles [rad]
             drive=4,  # An example of parameter part of the grid search
-            amplitudes=1,  # From 0 to 2 with 5 iterations [0,0.5,1,1.5,2]
+            amplitudes=0.89,  # From 0 to 2 with 5 iterations [0,0.5,1,1.5,2]
             phase_lag=2*np.pi,  # From 0 to 2 with 5 iterations [0,0.5,1,1.5,2]
             turn=0,  # Another example
             rhead = rh,
-            rtail = rh*rt,
+            rtail = rt,
             # ...
         )
-        for rh in np.linspace(1, 0.2, 10)
-        for rt in np.linspace(1, 0, 10)
+        for rh in np.linspace(0, 2, 10)
+        for rt in np.linspace(0, 2, 10)
         # for amplitudes in ...
         # for ...
     ]

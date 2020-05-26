@@ -203,11 +203,12 @@ class SalamandraSimulation(Simulation):
             )
 
         # Drives
-        if self.interface.user_params.drive_left().changed:
+        if self.interface.user_params.turn().changed:
             pylog.debug(
                 'Switch of behaviour can be implemented here (OPTIONAL)')
             # Example: animat.data.network.drives...
-            self.interface.user_params.drive_left().changed = False
+            # animat.data.network.turn = self.interface.user_params.turn()
+            self.interface.user_params.turn().changed = False
         if self.interface.user_params.drive_right().changed:
             pylog.debug(
                 'Switch of behaviour can be implemented here (OPTIONAL)')
@@ -267,10 +268,10 @@ class SalamandraUserParameters(UserParameters):
 
     def __init__(self, options):
         super(SalamandraUserParameters, self).__init__()
-        self['drive_left'] = DebugParameter(
-            'Drive left',
+        self['turn'] = DebugParameter(
+            'Turn',
             0,
-            0, 6
+            -1, 1
         )
         self['drive_right'] = DebugParameter(
             'Drive right',
@@ -278,9 +279,9 @@ class SalamandraUserParameters(UserParameters):
             0, 6
         )
 
-    def drive_left(self):
-        """Drive left"""
-        return self['drive_left']
+    def turn(self):
+        """Turn"""
+        return self['turn']
 
     def drive_right(self):
         """Drive right"""

@@ -44,13 +44,13 @@ class RobotParameters(dict):
         drive = parameters.drive
         
         if drive >= 1 and drive <= 5:
-            self.freqs[0:20] = (0.2+(drive*0.3)) * np.ones(20)
+            self.freqs[0:20] = (0.4+(drive*0.1)) * np.ones(20)
         else:
             self.freqs[0:20] = np.zeros(20)
             
         
         if drive >= 1 and drive <= 3:
-            self.freqs[20:24] = drive*0.2 * np.ones(4)
+            self.freqs[20:24] = drive*0.15 * np.ones(4)
         else:
             self.freqs[20:24] = np.zeros(4)
             
@@ -96,20 +96,22 @@ class RobotParameters(dict):
         else:
             phase_lag = parameters.phase_lag/parameters.n_body_joints
                 
+        limb_lag = parameters.limb_lag
         
         for i in range(10):
             if i != 0:
                 self.phase_bias[i,i-1] = -phase_lag
             self.phase_bias[i,i+1] = phase_lag
             self.phase_bias[i,i+10] = np.pi 
+            self.phase_bias[20+int(i/5),i] = limb_lag
             
         for i in range(10):
             self.phase_bias[10+i,i+9] = -phase_lag
             if i != 9:
                 self.phase_bias[10+i,i+11] = phase_lag
             self.phase_bias[10+i,i] = np.pi 
+            self.phase_bias[22+int(i/5),10+i] = limb_lag
             
-        
             
         self.phase_bias[20,21] = np.pi
         self.phase_bias[20,22] = np.pi
@@ -125,11 +127,18 @@ class RobotParameters(dict):
 
     def set_amplitudes_rate(self, parameters):
         """Set amplitude rates"""
-        self.rates[0:20] = 2 * np.ones(20)
-        self.rates[20:24] = 2 * np.ones(4)
+        self.rates[0:20] = 1 * np.ones(20)
+        self.rates[20:24] = 1 * np.ones(4)
 
     def set_nominal_amplitudes(self, parameters):
         """Set nominal amplitudes"""
+        turn = parameters.turn
+        
+        turnVect = np.zeros(20)
+        if turn < 0:
+            turnVect = np.reshape([np.ones(10) * np.abs(turn), np.zeros(10)], (1,20))
+        if turn > 0:
+            turnVect = np.reshape([np.zeros(10), np.ones(10) * np.abs(turn)], (1,20))
         
         gradvect = np.linspace(parameters.rhead, parameters.rtail, self.n_body_joints)
         gradvect = np.reshape([gradvect, gradvect], (1,20))
@@ -141,13 +150,15 @@ class RobotParameters(dict):
             amplitude = parameters.amplitudes
         
         if drive >= 1 and drive <= 5:
-            self.nominal_amplitudes[0:20] = (drive*0.05)* np.ones(20) * amplitude
+            self.nominal_amplitudes[0:20] = (drive*0.05)* (np.ones(20) - turnVect) * amplitude
         else:
             self.nominal_amplitudes[0:20] = np.zeros(20)
             
         self.nominal_amplitudes[0:20] = np.multiply(self.nominal_amplitudes[0:20],gradvect)
+        
+        #Limbs
         if drive >= 1 and drive <= 3:
-            self.nominal_amplitudes[20:24] = (0.1+(drive*0.1))* np.ones(4) * amplitude
+            self.nominal_amplitudes[20:24] = (0.1+(drive*0.37))* np.ones(4) * amplitude
         else:
             self.nominal_amplitudes[20:24] = np.zeros(4)
 

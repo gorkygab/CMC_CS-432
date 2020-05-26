@@ -1,5 +1,5 @@
 """Simulation parameters"""
-
+import numpy as np
 
 class SimulationParameters:
     """Simulation parameters"""
@@ -15,6 +15,8 @@ class SimulationParameters:
         self.amplitudes = 1
         self.rhead = 1
         self.rtail = 1
+        self.limb_lag = 0
+        self.turn = 0
         # Feel free to add more parameters (ex: MLR drive)
         # self.drive_mlr = ...
         # ...

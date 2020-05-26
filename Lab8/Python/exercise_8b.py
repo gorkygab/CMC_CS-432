@@ -23,8 +23,8 @@ def exercise_8b(timestep):
             turn=0,  # Another example
             # ...
         )
-        for amp in np.linspace(0.2,4,10)
-        for phase in np.linspace(3*np.pi,-3*np.pi,11)
+        for amp in np.linspace(0,2,10)
+        for phase in np.linspace(5*np.pi,-1*np.pi,11)
         # for amplitudes in ...
         # for ...
     ]
