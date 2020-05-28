@@ -202,18 +202,20 @@ class SalamandraSimulation(Simulation):
                 self.interface.user_params.zoom().value
             )
 
-        # Drives
+        # Turn
         if self.interface.user_params.turn().changed:
-            pylog.debug(
-                'Switch of behaviour can be implemented here (OPTIONAL)')
-            # Example: animat.data.network.drives...
-            # animat.data.network.turn = self.interface.user_params.turn()
+            
+            animat.controller.network.sim_params.turn = self.interface.user_params.turn().value
+            animat.controller.network.robot_parameters.update(animat.controller.network.sim_params)
+            
             self.interface.user_params.turn().changed = False
-        if self.interface.user_params.drive_right().changed:
-            pylog.debug(
-                'Switch of behaviour can be implemented here (OPTIONAL)')
-            # Example: animat.data.network.drives...
-            self.interface.user_params.drive_right().changed = False
+        
+        # Drive
+        if self.interface.user_params.drive().changed:
+            
+            animat.controller.network.sim_params.drive = self.interface.user_params.drive().value
+            animat.controller.network.robot_parameters.update(animat.controller.network.sim_params)
+            self.interface.user_params.drive().changed = False
 
     def postprocess(
             self,
@@ -273,8 +275,8 @@ class SalamandraUserParameters(UserParameters):
             0,
             -1, 1
         )
-        self['drive_right'] = DebugParameter(
-            'Drive right',
+        self['drive'] = DebugParameter(
+            'Drive',
             0,
             0, 6
         )
@@ -283,9 +285,9 @@ class SalamandraUserParameters(UserParameters):
         """Turn"""
         return self['turn']
 
-    def drive_right(self):
-        """Drive right"""
-        return self['drive_right']
+    def drive(self):
+        """Drive"""
+        return self['drive']
 
 
 class Salamandra(Animat):

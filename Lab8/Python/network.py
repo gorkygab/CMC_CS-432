@@ -168,6 +168,8 @@ class SalamandraNetwork:
         self.solver = ode(f=network_ode)
         self.solver.set_integrator('dopri5')
         self.solver.set_initial_value(y=self.state[0], t=0.0)
+        self.sim_params = sim_parameters
+        
 
     def step(self, iteration, time, timestep):
         """Step"""

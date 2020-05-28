@@ -88,7 +88,7 @@ def simulation(
     gps = data.sensors.gps
     count = 0
     for iteration in sim.iterator(show_progress=True):
-        
+        '''
         currcontactleftfront = np.asarray(
              contacts.reaction(
              iteration=iteration,  # Current iteration
@@ -124,6 +124,7 @@ def simulation(
         
         
         network.robot_parameters.update(sim_parameters)
+        '''
         
         '''
         pylog.info(np.asarray(

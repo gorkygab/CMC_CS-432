@@ -15,8 +15,8 @@ def exercise_8g(timestep):
         SimulationParameters(
             duration=80,  # Simulation duration in [s]
             timestep=timestep,  # Simulation timestep in [s]
-            spawn_position=[0, 0, 0.1],  # Robot position in [m]
-            spawn_orientation=[0, 0, np.pi],  # Orientation in Euler angles [rad]
+            spawn_position=[-10, 0, 0.1],  # Robot position in [m]
+            spawn_orientation=[0, 0, 0],  # Orientation in Euler angles [rad]
             drive=4,  # An example of parameter part of the grid search
             amplitudes=0.89,  # From 0 to 2 with 5 iterations [0,0.5,1,1.5,2]
             phase_lag=2*np.pi,  # From 0 to 2 with 5 iterations [0,0.5,1,1.5,2]

@@ -43,14 +43,16 @@ class RobotParameters(dict):
         
         drive = parameters.drive
         
+        '''2'''
+        
         if drive >= 1 and drive <= 5:
-            self.freqs[0:20] = (0.4+(drive*0.1)) * np.ones(20)
+            self.freqs[0:20] =  (0.2+(drive*0.3)) * np.ones(20)
         else:
             self.freqs[0:20] = np.zeros(20)
             
         
         if drive >= 1 and drive <= 3:
-            self.freqs[20:24] = drive*0.15 * np.ones(4)
+            self.freqs[20:24] = drive*0.2 * np.ones(4)
         else:
             self.freqs[20:24] = np.zeros(4)
             

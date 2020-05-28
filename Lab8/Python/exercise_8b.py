@@ -31,7 +31,7 @@ def exercise_8b(timestep):
 
     # Grid search
     for simulation_i, sim_parameters in enumerate(parameter_set):
-        filename = './logs/8b/simulation_{}.{}'
+        filename = './logs/8b2hz/simulation_{}.{}'
         sim, data = simulation(
             sim_parameters=sim_parameters,  # Simulation parameters, see above
             arena='water',  # Can also be 'ground' or 'amphibious'

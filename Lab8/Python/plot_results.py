@@ -77,7 +77,7 @@ def plot_2d(results, labels, n_data=300, log=False, cmap=None):
 def main(plot=True):
     """Main"""
     # Load data
-    dataquantity = 100
+    dataquantity = 1
     
     speed = np.zeros(dataquantity)
     energy = np.zeros(dataquantity)
@@ -89,8 +89,8 @@ def main(plot=True):
     limbamp = np.zeros(dataquantity)
     
     for i in range(dataquantity):  # Inner loop should be phase and outer loop should be amplitude
-        data = AnimatData.from_file('logs/8c/simulation_{}.h5'.format(i), 2*14)
-        with open('logs/8c/simulation_{}.pickle'.format(i), 'rb') as param_file:
+        data = AnimatData.from_file('logs/8d/simulation_{}.h5'.format(i), 2*14)
+        with open('logs/8d/simulation_{}.pickle'.format(i), 'rb') as param_file:
             parameters = pickle.load(param_file)
         times = data.times
         timestep = times[1] - times[0]  # Or parameters.timestep
@@ -98,7 +98,7 @@ def main(plot=True):
         phase_lag[i] = parameters.phase_lag
         rhead[i] = parameters.rhead
         rtail[i] = parameters.rtail
-        #limb_lag[i] = parameters.limb_lag
+        limb_lag[i] = parameters.limb_lag
         #limbamp[i] = parameters.legamp
         osc_phases = data.state.phases_all()
         osc_amplitudes = data.state.amplitudes_all()
@@ -132,7 +132,7 @@ def main(plot=True):
     plot_2d(result,["Amplitude", "Phase lag", "Energy"])
     '''
     
-    
+    '''
     #FOR EXERCISE 8C
     result = np.zeros((dataquantity,3))
     result[:,0] = rhead
@@ -145,6 +145,13 @@ def main(plot=True):
     plt.figure("Energy")
     result[:,2] = energy
     plot_2d(result,["Head amplitude", "Tail amplitude", "Energy"])
+    '''
+    
+    #FOR EXERCISE 8D
+    plt.figure("Trajectory")
+    plot_trajectory(head_positions)
+    plt.figure("Joint positions")
+    plot_positions(times, joints_positions)
     
     
     '''
