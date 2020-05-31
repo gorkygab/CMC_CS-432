@@ -20,3 +20,5 @@ __pychache__
 #: Docs
 docs/build
 make.bat
+*.pickle
+*.h5
